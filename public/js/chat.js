@@ -10,23 +10,38 @@ function scrollToBottom (){
     const newMessageHeight = newMessage.innerHeight();
     const lastMessageHeight = newMessage.prev().innerHeight();
 
-    console.log(clientHeight);
-    console.log(scrollTop);
-    console.log(scrollHeight);
-
     if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
         messages.scrollTop(scrollHeight);
     }
 }
 
+
 socket.on('connect', function () {
-  console.log('Connected to server');
+  const params = jQuery.deparam(window.location.search);
+  socket.emit('join', params, function (err) {
+      if(err) {
+          alert(err);
+          window.location.href = '/';
+      } else {
+
+      }
+  });
 
 });
 
 socket.on('disconnect', function () {
   console.log('Disconnected from server');
 });
+
+socket.on('updateUserList', function (users) {
+    const ol = jQuery('<ol></ol>');
+
+    users.forEach(function (user) {
+        ol.append(jQuery('<li></li>').text(user));
+    });
+    jQuery('#users').html(ol);
+});
+
 
 socket.on('newMessage', function (message) {
     const formattedTime = moment(message.createdAt).format('H:mm A');
